@@ -11,7 +11,7 @@ public class CameraController : MonoBehaviour
     public float CameraSpeedGravity=2.0f;
     public float CameraSpeed = 2.0f;
     private Rigidbody2D CameraRigidbody;
-    void Start()
+    void Awake()
     {
         CamInit();
     }
@@ -36,6 +36,7 @@ public class CameraController : MonoBehaviour
    
     void MovementFunction()
     {
+
         TargetVelocity.x = (PlayerObj.position.x - this.transform.position.x);
         TargetVelocity.y = (PlayerObj.position.y - this.transform.position.y);
 

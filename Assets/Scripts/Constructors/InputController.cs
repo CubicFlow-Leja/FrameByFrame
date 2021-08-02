@@ -22,7 +22,8 @@ public class InputController : AbstractInputController
         DirVector.y = Input.GetAxisRaw("Vertical");
 
         InputMain.Dir = DirVector;
-        InputMain.Jump = Input.GetKeyDown(KeyCode.Space);
+        InputMain.JumpPressed = Input.GetKey(KeyCode.Space);//|| Input.GetKeyDown(KeyCode.Space);
+        InputMain.JumpReleased = Input.GetKeyUp(KeyCode.Space);
         _Pawn.AsignInput(InputMain);
     }
  
@@ -34,5 +35,6 @@ public class InputController : AbstractInputController
 public struct InputStruct
 {
     public Vector2 Dir;
-    public bool Jump;
+    public bool JumpPressed;
+    public bool JumpReleased;
 }
