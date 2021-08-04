@@ -8,7 +8,7 @@ public abstract class AbstractInputController : MonoBehaviour
     protected private Vector2 DirVector;
 
     protected private virtual void Start() { Init(); }
-    protected private virtual void FixedUpdate() { HandleInputs(); }
+    protected private virtual void Update() { HandleInputs(); }
 
     protected abstract void Init();
 
@@ -17,5 +17,7 @@ public abstract class AbstractInputController : MonoBehaviour
         SendInput();
     }
     protected abstract void SendInput();
+
+    public abstract void Reset();
 
 }

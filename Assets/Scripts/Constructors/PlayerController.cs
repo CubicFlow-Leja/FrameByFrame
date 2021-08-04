@@ -9,6 +9,8 @@ public class PlayerController : AbstractController
     override protected private void CalculateAnimationData()
     {
 
+        Model.transform.up = Vector3.up;
+
         if (DirectionParameter != 0)
             AnimationState = 1;
         else

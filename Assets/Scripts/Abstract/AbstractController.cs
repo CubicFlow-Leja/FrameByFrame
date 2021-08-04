@@ -4,27 +4,27 @@ using UnityEngine;
 using System;
 public abstract class AbstractController : MonoBehaviour
 {
-
-    protected private float SlopeAngle;
-    protected private float JumpCharged;
-    protected private Vector2 ForceVector;
+    
+    protected private float yFactor = 0;
+    protected private float JumpCharged=0;
+    protected private Vector2 ForceVector=Vector2.zero;
+    protected private Vector2 ForceVectorJmp=Vector2.zero;
     protected private RaycastHit2D hit;
-    protected private Vector2 HitNormal;
-    protected private Vector2 HitTangent;
-    protected private Vector2 WallVector;
-    protected private float DirectionParameter;
-    protected private bool Grounded;
-    protected private bool CanJump;
+    protected private Vector2 HitNormal=Vector2.up;
+    protected private Vector2 HitTangent=Vector2.right;
+    protected private float DirectionParameter=1;
+    protected private bool Grounded=false;
     protected private InputStruct Inputs;
-    protected private Collider2D PawnCollider;
+   // protected private Collider2D PawnCollider;
     protected private Rigidbody2D PawnRigidBody;
-    protected private int AnimationState;
+    protected private int AnimationState=0;
     protected private AbstractInputController ParentController;
     protected private Vector3 scale = Vector3.one;
 
     [Header("CharacterParams")]
     public Animator Ani;
     public GameObject Character;
+    public GameObject Model;
     public LayerMask CollissionMask;
     public Stats CharacterStats;
 
@@ -33,16 +33,6 @@ public abstract class AbstractController : MonoBehaviour
     public float RaycastMaxLength = 1f;
     [Range(0, 15)]
     public int RayCastResolution=4;
-    [Range(0, 2)]
-    public float RayCastStretchDistance=1f;
-    [Range(0, 15)]
-    public int RayCastStrecthResolution=3;
-
-    [Header("Wall Detection")]
-    [Range(0, 15)]
-    public int RayCastWallResolution=4;
-  
-
 
 
     public virtual void AsignInput(InputStruct InputMain)
@@ -53,24 +43,18 @@ public abstract class AbstractController : MonoBehaviour
     protected private abstract void CalculateAnimationData();
    
 
-    protected private void HandleInputs(InputStruct _Input) { Inputs = _Input; }
+    protected private void HandleInputs(InputStruct _Input) 
+    { 
+        Inputs.Dir = _Input.Dir;
+        Inputs.JumpPressed = _Input.JumpPressed;
+       
+    }
 
 
     public virtual void InitPawn(AbstractInputController Parent)
     {
-        CanJump = false;
-        Grounded = false;
-        ForceVector = Vector2.zero;
-        PawnCollider = GetComponent<Collider2D>();
         PawnRigidBody = GetComponent<Rigidbody2D>();
-        AnimationState = 0;
         ParentController = Parent;
-        HitNormal = Vector2.up;
-        WallVector = Vector2.zero;
-        DirectionParameter = 1;
-        JumpCharged = 0;
-
-
     }
 
     public virtual void SetAnimationStates()
@@ -83,10 +67,7 @@ public abstract class AbstractController : MonoBehaviour
     {
         HandleInputs(Inputs);
         CheckGrounded();
-       // WallInfluence();
-
         CalculateMovement();
-      
         CalculateAnimationData();
         SetAnimationStates();
         MoveCharacter();
@@ -104,36 +85,27 @@ public abstract class AbstractController : MonoBehaviour
         for (int i = 0; i <= RayCastResolution; i++)
         {
             StartVec = this.transform.position + this.transform.right * i / RayCastResolution * CharacterStats.PawnWidth / 2;
-            hit = Physics2D.Raycast(StartVec, -this.transform.up, RaycastMaxLength, CollissionMask);
+            hit = Physics2D.Raycast(StartVec, -this.transform.up, RaycastMaxLength * scale.y, CollissionMask);
 
             if (hit.collider!= null)
             {
                 Debug.DrawLine(StartVec, hit.point, Color.red);
 
-
                 Grounded = true;
-                CanJump = true;
-
-
-                HitNormal = hit.normal;
-                break;
+               // break;
             }
 
             if(i!=0)
             {
                 StartVec = this.transform.position  - this.transform.right * i / RayCastResolution * CharacterStats.PawnWidth / 2;
-                hit = Physics2D.Raycast(StartVec, -this.transform.up, RaycastMaxLength, CollissionMask);
+                hit = Physics2D.Raycast(StartVec, -this.transform.up, RaycastMaxLength * scale.y, CollissionMask);
 
                 if (hit.collider != null)
                 {
                     Debug.DrawLine(StartVec, hit.point, Color.red);
 
                     Grounded = true;
-                    CanJump = true;
-
-
-                    HitNormal = hit.normal;
-                    break;
+                    //break;
                 }
 
             }
@@ -142,9 +114,9 @@ public abstract class AbstractController : MonoBehaviour
 
         if(Grounded)
         {
-            SlopeAngle = Vector3.Angle(HitNormal, Vector3.up);
-            if (SlopeAngle >= 90.0f)
-                SlopeAngle = 0.0f;
+            //SlopeAngle = Vector3.Angle(HitNormal, Vector3.up);
+            //if (SlopeAngle >= 90.0f)
+            //    SlopeAngle = 0.0f;
 
             float x = Vector3.Dot(HitNormal, Vector3.right);
             float y = Vector3.Dot(HitNormal, Vector3.up);
@@ -156,117 +128,85 @@ public abstract class AbstractController : MonoBehaviour
         }
 
 
-        if (!CanJump && DirectionParameter != 0)
-            for (int j = 1; j <= RayCastStrecthResolution; j++)
-            {
-                StartVec = this.transform.position -
-                    this.transform.right  * (j / (float)RayCastStrecthResolution * RayCastStretchDistance * DirectionParameter + CharacterStats.PawnWidth / 2.0f * Mathf.Sign(DirectionParameter));
-
-                hit = Physics2D.Raycast(StartVec, -this.transform.up, RaycastMaxLength, CollissionMask);
-                if (hit.collider != null)
-                {
-                    Debug.DrawLine(StartVec, hit.point, Color.blue);
-                    CanJump = true;
-                    break;
-                }
-            }
 
     }
 
+    protected private bool Jmp=false;
 
-    protected private void HeadHit()
+    protected private void Jump()
     {
-        Vector3 StartVec;
-        for (int i = -RayCastResolution; i <= RayCastResolution; i++)
-        {
-            StartVec = this.transform.position + this.transform.right * i / RayCastResolution * CharacterStats.PawnWidth / 2;
-            hit = Physics2D.Raycast(StartVec, this.transform.up, RaycastMaxLength, CollissionMask);
-
-            if (hit.collider != null)
-            {
-                Debug.DrawLine(StartVec, hit.point, Color.cyan);            }
-        }
+        JumpCharged = Mathf.Clamp01(JumpCharged);
+        float Param = Mathf.Clamp01(1f - scale.y) / CharacterStats.MaxStretchFactor;
+        PawnRigidBody.AddForce(Character.transform.up * Param * JumpCharged  * CharacterStats.MaxJumpForce);
+        JumpCharged = 0;
+        RelativeVector = Vector3.zero;
+        Jmp = false;
     }
-
-    protected private void WallInfluence()
-    {
-        Vector3 StartVec;
-        for (int i = -RayCastWallResolution; i < 0 + 1; i++)
-        {
-            StartVec = this.transform.position - Character.transform.up * CharacterStats.PawnHeight / 6f * i / RayCastWallResolution;
-               
-            hit = Physics2D.Raycast(StartVec, HitTangent * Mathf.Sign(Character.transform.localScale.x), RaycastMaxLength, CollissionMask);
-            Debug.DrawLine(StartVec, StartVec +(Vector3) HitTangent * Mathf.Sign(Character.transform.localScale.x) * RaycastMaxLength, Color.cyan);
-
-            if (hit.collider != null)
-            {
-                float length = ((Vector3)hit.point - this.transform.position).magnitude;
-                if(length<=CharacterStats.PawnWidth/6.0f)
-                {
-                    WallVector = hit.normal;
-                    return;
-                }
-                
-            }
-  
-        }
-        WallVector = Vector2.zero;
-    }
-
-
-
     protected private void CalculateMovement()
     {
-       
+        ForceVectorJmp = Vector2.zero;
+        ForceVector = Vector2.zero;
+
         if (Grounded)
         {
             if (Inputs.JumpPressed)
             {
-                JumpCharged += (CharacterStats.MaxJumpForce - JumpCharged) * Time.fixedDeltaTime * CharacterStats.JumpChargeGravity;
-                scale.y = 1f - JumpCharged / CharacterStats.MaxJumpForce * 0.25f ;
+               
+                JumpCharged += (2f - JumpCharged) * Time.fixedDeltaTime * CharacterStats.JumpChargeGravity;
+                Jmp = true;
+
+                if (JumpCharged >= 1f)
+                    Debug.Log("JUMPMAX");
+
+                if (JumpCharged >= 1.9f)
+                    Jump();
             }
             else
             {
-                if ( JumpCharged / CharacterStats.MaxJumpForce > 0.25f)
-                {
-                    PawnRigidBody.AddForce(Character.transform.up * JumpCharged);
-                    JumpCharged = 0;
-                    scale.y = 1f;
-                }
-
-                JumpCharged += (0 - JumpCharged) * Time.deltaTime * CharacterStats.JumpChargeGravity;
-                scale.y = 1f - JumpCharged / CharacterStats.MaxJumpForce * 0.25f;
+                if (Jmp)
+                    Jump();
+                else
+                    JumpCharged += (0f - JumpCharged) * Time.fixedDeltaTime * CharacterStats.JumpChargeGravity;
             }
-
-            Character.transform.up = Vector3.RotateTowards(Character.transform.up, HitNormal, 1.5f * Time.fixedDeltaTime, 1.0f);
+               
+            yFactor += (0 - yFactor) * Time.fixedDeltaTime * CharacterStats.AirStretchFactor;
+            this.transform.up = Vector3.RotateTowards(Character.transform.up, HitNormal, CharacterStats.NormalAlignSpeed * Time.fixedDeltaTime, 1.0f);
             Vector2 vecInput = Inputs.Dir.x * HitTangent;
             ForceVector = vecInput*CharacterStats.MaxForce;
         }
         else
         {
-           
-
-            Character.transform.up = Vector3.RotateTowards(Character.transform.up, (PawnRigidBody.velocity.normalized*Mathf.Sign(PawnRigidBody.velocity.y)+Vector2.up).normalized, 1.5f * Time.fixedDeltaTime, 1.0f);
-            ForceVector = Vector2.zero;
-            JumpCharged += (0 - JumpCharged) * Time.deltaTime * CharacterStats.JumpChargeGravity*5f;
-            scale.y = 1f + 0.25f*Mathf.Abs(PawnRigidBody.velocity.y) / 10.0f;
-            //scale.y = 1f - JumpCharged / CharacterStats.MaxJumpForce * 0.25f;
-            // HeadHit();
+            yFactor += (Mathf.Clamp01(Mathf.Clamp( Mathf.Abs(PawnRigidBody.velocity.y),0,CharacterStats.AirIncrementFactor) / CharacterStats.AirIncrementFactor) - yFactor) * Time.fixedDeltaTime * CharacterStats.AirStretchFactor;
+            JumpCharged += (0f - JumpCharged) * Time.fixedDeltaTime * CharacterStats.JumpChargeGravity * 10f;
+            this.transform.up = Vector3.RotateTowards(Character.transform.up, ((PawnRigidBody.velocity).normalized * Mathf.Sign(PawnRigidBody.velocity.y)+HitNormal * 1.5f ).normalized , CharacterStats.AirAlignSpeed * Time.fixedDeltaTime, 1.0f);
+            // Character.transform.up = Vector3.RotateTowards(Character.transform.up, (PawnRigidBody.velocity.normalized*Mathf.Sign(PawnRigidBody.velocity.y)).normalized,CharacterStats.NormalAlignSpeed * Time.fixedDeltaTime, 1.0f); 
+            //  Character.transform.up = Vector3.RotateTowards(Character.transform.up, Vector2.up,CharacterStats.NormalAlignSpeed* Time.fixedDeltaTime, 1.0f); 
+            HitNormal = Vector3.RotateTowards(HitNormal, Vector3.up, Time.fixedDeltaTime * CharacterStats.AirAlignSpeed, 1.0f);
         }
 
+        float tempY =Mathf.Clamp( Mathf.Abs(Vector3.Dot(Character.transform.up, RelativeVector)),0.2f,CharacterStats.SpeedStretchFactor);
+        float tempX = Mathf.Clamp(Mathf.Abs(Vector3.Dot(Character.transform.right, RelativeVector)), 0.2f, CharacterStats.SpeedStretchFactor);
 
-        scale.y = Mathf.RoundToInt(scale.y * 20f) / 20f;
+        float temp = 1f - CharacterStats.MaxStretchFactor * tempY / CharacterStats.SpeedStretchFactor
+                     + CharacterStats.MaxStretchFactor * tempX / CharacterStats.SpeedStretchFactor
+                     - JumpCharged * CharacterStats.MaxStretchFactor/2f + (CharacterStats.MaxStretchFactor * yFactor);
+
+        scale.y = Mathf.Clamp((temp * CharacterStats.IncrementFactor) / CharacterStats.IncrementFactor, CharacterStats.MaxStretchFactor, 20f);
+        //scale.y = Mathf.Clamp(Mathf.RoundToInt(temp * CharacterStats.IncrementFactor) / CharacterStats.IncrementFactor, CharacterStats.MaxStretchFactor, 20f);
         scale.x = 2f - scale.y;
         scale.x = Mathf.Abs(scale.x) * Mathf.Sign(DirectionParameter);
         this.GetComponent<CircleCollider2D>().radius = scale.y*0.75f;
+        this.GetComponent<CapsuleCollider2D>().size = new Vector2(1.125f + 0.75f*(0.5f/scale.y), 0.35f);
         Character.transform.localScale = scale;
+
+        RelativeVector +=(Vector3.zero- RelativeVector)* Time.fixedDeltaTime * CharacterStats.StretchFactor;
     }
 
 
 
     protected private  void MoveCharacter()
     {
-        PawnRigidBody.AddForce(ForceVector);
+        PawnRigidBody.AddForce(ForceVector+ ForceVectorJmp);
     }
     private void FixedUpdate()
     {
@@ -274,11 +214,49 @@ public abstract class AbstractController : MonoBehaviour
     }
 
 
-
+    protected private Vector3 RelativeVector = Vector3.zero;
     public void OnCollisionEnter2D(Collision2D collision)
     {
-        Debug.DrawLine(collision.GetContact(0).point, collision.GetContact(0).point + collision.GetContact(0).relativeVelocity*
-            Mathf.Clamp01( Vector3.Dot(collision.GetContact(0).normal, collision.GetContact(0).relativeVelocity.normalized)) , Color.red, 0.5f);
+        if (Vector3.Dot(Vector3.up, collision.GetContact(0).normal) > 0)
+            HitNormal = collision.GetContact(0).normal;
+        else
+            HitNormal = Vector3.up;
+
+        yFactor = 0;
+
+        Vector3 Temp = collision.GetContact(0).relativeVelocity;
+        Temp = collision.GetContact(0).normal * Vector3.Dot(Temp, collision.GetContact(0).normal);
+        RelativeVector += Temp;
+        Debug.DrawLine(collision.GetContact(0).point, collision.GetContact(0).point + (Vector2)RelativeVector/15, Color.black, 1f);
+    }
+    public void OnCollisionStay2D(Collision2D collision)
+    {
+        if (Vector3.Dot(Vector3.up, collision.GetContact(0).normal) > 0)
+            HitNormal = collision.GetContact(0).normal;
+        else
+            HitNormal = Vector3.up;
+
+        Debug.DrawLine(collision.GetContact(0).point, collision.GetContact(0).point + collision.GetContact(0).relativeVelocity *
+            Mathf.Clamp01(Vector3.Dot(collision.GetContact(0).normal, collision.GetContact(0).relativeVelocity.normalized)), Color.red, 0.5f);
+    }
+
+
+
+    public void Reset()
+    {
+        ParentController.Reset();
+    }
+
+    public void ResetPawn()
+    {
+        scale = Vector3.one;
+        yFactor = 0;
+        JumpCharged = 0;
+        DirectionParameter = 1;
+        HitNormal = Vector2.up;
+        HitTangent = Vector2.right;
+        Grounded = false;
+        AnimationState = 0;
     }
 }
 
@@ -292,5 +270,20 @@ public struct Stats
     public float JumpChargeGravity;
     public float PawnHeight;
     public float PawnWidth;
-    public float StretchSpeed;
+    [Range(0.5f,5f)]
+    public float StretchFactor;//4
+    [Range(10f, 50f)]
+    public float SpeedStretchFactor;//50
+    [Range(1.5f, 20f)]
+    public float NormalAlignSpeed;//1.5
+    [Range(0.5f, 5f)]
+    public float AirAlignSpeed;//1.5
+    [Range(2.5f, 100f)]
+    public float AirStretchFactor;//10
+    [Range(0.05f, 0.6f)]
+    public float MaxStretchFactor;//0.5
+    [Range(10f, 50f)]
+    public float IncrementFactor;//40
+    [Range(5f, 30f)]
+    public float AirIncrementFactor;//25
 }

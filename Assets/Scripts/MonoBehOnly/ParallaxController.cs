@@ -6,13 +6,9 @@ public class ParallaxController : MonoBehaviour
 { 
     public static ParallaxController Parallax { set; get; }
 
-    public Rigidbody2D ForeGround;
-    public Rigidbody2D Background;
-
     protected private Vector2 ParallaxVelocity;
-    public float ForeGroundSpeedFactor = 0.25f;
-    public float BackgroundSpeedFactor = 2.0f;
-
+    public List<ParallaxLayer> ParallaxLayers;
+    Vector2 tempVel = Vector2.zero;
     void Start()
     {
         ParaInit();
@@ -29,14 +25,39 @@ public class ParallaxController : MonoBehaviour
     }
 
 
-    void Update()
+    
+    void FixedUpdate()
     {
-        ForeGround.velocity = -ParallaxVelocity * ForeGroundSpeedFactor;
-        Background.velocity = ParallaxVelocity * BackgroundSpeedFactor;
+        foreach(ParallaxLayer layer in ParallaxLayers)
+        {
+            tempVel.x=ParallaxVelocity.x * layer.ParallaxSpeedFactor * layer.ParallaxDirection; 
+            tempVel.y=ParallaxVelocity.y * layer.ParallaxSpeedFactor;
+            layer.Layer.velocity = tempVel;
+        }
     }
 
     public void SetVelocity(Vector2 Vel)
     {
-        ParallaxVelocity = Vel;
+        ParallaxVelocity.x = Vel.x;
+        ParallaxVelocity.y = -Vel.y;
     }
+
+    public void ResetParallax()
+    {
+        foreach (ParallaxLayer layer in ParallaxLayers)
+        {
+            layer.Layer.transform.position = Vector3.zero;
+        }
+    }
+}
+
+
+[System.Serializable]
+public struct ParallaxLayer
+{
+    public Rigidbody2D Layer;
+    [Range(0f,6f)]
+    public float ParallaxSpeedFactor;
+    [Range(-1,1)]
+    public int ParallaxDirection;
 }

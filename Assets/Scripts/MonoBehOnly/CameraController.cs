@@ -10,7 +10,7 @@ public class CameraController : MonoBehaviour
     private Transform PlayerObj;
     public float CameraSpeedGravity=2.0f;
     public float CameraSpeed = 2.0f;
-    private Rigidbody2D CameraRigidbody;
+    public Rigidbody2D CameraRigidbody;
     void Awake()
     {
         CamInit();
