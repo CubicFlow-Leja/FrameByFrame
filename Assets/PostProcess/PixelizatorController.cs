@@ -14,6 +14,8 @@ public class PixelizatorController : MonoBehaviour
     public bool UsePixel;
     public int Rows;
     public int Columns;
+    [Range(1,64)]
+    public int ColorDownscale=4;
 
     public Material _PixelMat
     {
@@ -59,6 +61,7 @@ public class PixelizatorController : MonoBehaviour
 
         _PixelMat.SetInt("_Columns", Columns);
         _PixelMat.SetInt("_Rows", Rows);
+        _PixelMat.SetInt("_ColorDownscale", ColorDownscale);
 
         _PixelMat.SetTexture("_TempTex", source);
 

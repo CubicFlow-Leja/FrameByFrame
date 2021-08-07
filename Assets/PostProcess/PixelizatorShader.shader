@@ -46,19 +46,23 @@
 			sampler2D _TempTex;
 			int _Columns;
 			int _Rows;
+			int _ColorDownscale;
 
             fixed4 frag (v2f i) : SV_Target
             {
 				float2 uv = i.uv;
-				uv.y *= _Rows;
-				uv.x *= _Columns;
-				uv.y = round(uv.y);
-				uv.x = round(uv.x);
-				uv.y /= _Rows;
-				uv.x /= _Columns;
+				//uv.y *= _Rows;
+				//uv.x *= _Columns;
+				//uv.y = round(uv.y);
+				//uv.x = round(uv.x);
+				//uv.y /= _Rows;
+				//uv.x /= _Columns;
 
                 fixed4 col = tex2D(_TempTex, uv);
-				
+                col *= _ColorDownscale;
+                col = round(col);
+                col /= _ColorDownscale;
+
                 return col;
             }
             ENDCG

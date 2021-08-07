@@ -30,16 +30,16 @@ MonoBehaviour:
     m_Settings:
       excludeSkybox: 1
   antialiasing:
-    m_Enabled: 0
+    m_Enabled: 1
     m_Settings:
-      method: 0
+      method: 1
       fxaaSettings:
         preset: 2
       taaSettings:
-        jitterSpread: 0.75
-        sharpen: 0.3
-        stationaryBlending: 0.95
-        motionBlending: 0.85
+        jitterSpread: 0.1
+        sharpen: 0.5
+        stationaryBlending: 0.25
+        motionBlending: 0.25
   ambientOcclusion:
     m_Enabled: 0
     m_Settings:
@@ -82,7 +82,7 @@ MonoBehaviour:
     m_Settings:
       shutterAngle: 360
       sampleCount: 32
-      frameBlending: 1
+      frameBlending: 0.459
   eyeAdaptation:
     m_Enabled: 0
     m_Settings:

@@ -18,7 +18,7 @@ public abstract class AbstractController : MonoBehaviour
    // protected private Collider2D PawnCollider;
     protected private Rigidbody2D PawnRigidBody;
     protected private int AnimationState=0;
-    protected private AbstractInputController ParentController;
+    public AbstractInputController ParentController;
     protected private Vector3 scale = Vector3.one;
 
     [Header("CharacterParams")]

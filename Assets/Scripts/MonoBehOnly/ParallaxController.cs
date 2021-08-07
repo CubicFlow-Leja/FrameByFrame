@@ -8,7 +8,10 @@ public class ParallaxController : MonoBehaviour
 
     protected private Vector2 ParallaxVelocity;
     public List<ParallaxLayer> ParallaxLayers;
-    Vector2 tempVel = Vector2.zero;
+    private List<Vector3> ParallaxLayerPositions=new List<Vector3>();
+
+    public Transform SpawnPosition;
+
     void Start()
     {
         ParaInit();
@@ -22,32 +25,45 @@ public class ParallaxController : MonoBehaviour
             Destroy(this.gameObject);
 
         ParallaxVelocity = Vector2.zero;
+
+        SetupInitialPosition();
+        InitialOffset();
     }
 
 
-    
+    public void SetupInitialPosition()
+    {
+        foreach(ParallaxLayer lay in ParallaxLayers)
+            ParallaxLayerPositions.Add(lay.Layer.transform.position);
+    }
+
+    public void InitialOffset()
+    {
+        foreach (ParallaxLayer lay in ParallaxLayers)
+            lay.Layer.position-= lay.ParallaxSpeedFactor * lay.ParallaxDirection*(lay.Layer.position- (Vector2)SpawnPosition.position);
+        
+    }
+
+
     void FixedUpdate()
     {
         foreach(ParallaxLayer layer in ParallaxLayers)
-        {
-            tempVel.x=ParallaxVelocity.x * layer.ParallaxSpeedFactor * layer.ParallaxDirection; 
-            tempVel.y=ParallaxVelocity.y * layer.ParallaxSpeedFactor;
-            layer.Layer.velocity = tempVel;
-        }
+            layer.Layer.velocity = ParallaxVelocity * layer.ParallaxSpeedFactor * layer.ParallaxDirection;
+
     }
 
     public void SetVelocity(Vector2 Vel)
     {
-        ParallaxVelocity.x = Vel.x;
-        ParallaxVelocity.y = -Vel.y;
+        ParallaxVelocity = Vel;
     }
 
     public void ResetParallax()
     {
-        foreach (ParallaxLayer layer in ParallaxLayers)
+        for (int i = 0; i < ParallaxLayers.Count; i++)
         {
-            layer.Layer.transform.position = Vector3.zero;
+            ParallaxLayers[i].Layer.position = ParallaxLayerPositions[i];
         }
+        InitialOffset();
     }
 }
 
