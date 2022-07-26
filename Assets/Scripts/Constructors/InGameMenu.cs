@@ -115,6 +115,9 @@ public class InGameMenu : AbstractMenu
     {
         SoundController.SoundSystem.PlaySound(Src, SndId);
         ActPanel(true, true, RewardsPanel);
+        CurrentButtonsCount = RewardPanelButtons.Count;
+        CurrentButtons = RewardPanelButtons;
+        CurrentSelectObj = SelectObjFinishedPanel;
     }
 
 

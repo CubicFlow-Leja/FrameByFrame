@@ -56,4 +56,11 @@ public class CameraController : MonoBehaviour
     {
         PlayerObj = obj;
     }
+
+
+    public void Reset()
+    {
+        _Camera.orthographicSize = CameraSizeMin;
+        TargetVelocity = Vector2.zero;
+    }
 }

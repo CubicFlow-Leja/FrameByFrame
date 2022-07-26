@@ -887,8 +887,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 705101088}
   m_LocalRotation: {x: -0, y: -0, z: -0.4403805, w: 0.89781123}
-  m_LocalPosition: {x: -47.6, y: 8.7, z: 0}
-  m_LocalScale: {x: 25.211052, y: 1, z: 1}
+  m_LocalPosition: {x: -48.0593, y: 9.0491, z: 0}
+  m_LocalScale: {x: 26.068228, y: 1.0566, z: 1}
   m_Children: []
   m_Father: {fileID: 1418046218}
   m_RootOrder: 9
@@ -3271,6 +3271,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: InGamePanels
       objectReference: {fileID: 0}
+    - target: {fileID: 4748520585590855837, guid: e964fa295f72b8843999c44958fdcab0, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e964fa295f72b8843999c44958fdcab0, type: 3}
 --- !u!1001 &5452757368729832872
@@ -3441,6 +3445,10 @@ PrefabInstance:
     - target: {fileID: 8532412717783621427, guid: 01459e0232b0a7243aec2d4a87f4952a, type: 3}
       propertyPath: m_Name
       value: Teleporter
+      objectReference: {fileID: 0}
+    - target: {fileID: 8532412717783621427, guid: 01459e0232b0a7243aec2d4a87f4952a, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 01459e0232b0a7243aec2d4a87f4952a, type: 3}

@@ -5,16 +5,18 @@ using UnityEngine;
 public class PlayerController : AbstractController
 {
 
-   
+    [Header("Ani")]
+    public float RotaSpeed=1f;
     override protected private void CalculateAnimationData()
     {
 
         Model.transform.up = Vector3.up;
-
-        if (DirectionParameter != 0)
-            AnimationState = 1;
-        else
-            AnimationState = 0;
+        Model.transform.GetChild(0).transform.Rotate(Model.transform.forward, RotaDirectionFactor * RotaSpeed * Time.fixedDeltaTime);
+       
+        //if (DirectionParameter != 0)
+        //    AnimationState = 1;
+        //else
+        //    AnimationState = 0;
         // Debug.DrawLine(this.transform.position, this.transform.position+ this.transform.up*2f, Color.green);
         //if (MoveVector.x != 0)
         //{

@@ -133,6 +133,8 @@ public class InputController : AbstractInputController
 
         this.GetComponent<CameraController>().CameraRigidbody.transform.position = SpawnPosition.position;
         this.GetComponent<CameraController>().CameraRigidbody.velocity = Vector2.zero;
+        this.GetComponent<CameraController>().Reset();
+
 
        
         _Pawn.transform.position = SpawnPosition.position;
